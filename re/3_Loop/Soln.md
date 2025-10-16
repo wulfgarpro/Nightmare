@@ -34,12 +34,15 @@ Per `objdump -D loop -M intel | less`, `main` is:
 Then, `jmp 804842c` jumps to `cmp DWORD PTR [ebp-0xc],0x13`, after which `jle 8048415`
 jumps back to `sub esp,0x8`.
 
-The `sub esp,0x8` instruction moves the stack pointer `-0x8` (the stack grows down) to make room for
-a DWORD value.
+The `sub esp,0x8` instruction moves the stack pointer `-0x8` (the stack grows down) - likely stack
+alignment.
 
 After that `push DWORD PTR [ebp-0xc]` pushes the current `[ebp-0xc]` DWORD to the stack.
 
-Next, `push 0x80484c0` pushes an argument to the stack for the subsequent `call printf@plt`.
+Next, `push 0x80484c0` pushes another DWORD argument to the stack for the subsequent
+`call printf@plt`.
+
+So `8+4+4=16`, the stack has been aligned at 16-bytes.
 
 We can see what the argument is with: `objdump -s -j ".rodata" ./loop`:
 
@@ -48,12 +51,13 @@ Contents of section .rodata:
  80484b8 03000000 01000200 25642000           ........%d .
 ```
 
-So the printf will read pop the format specifier `%d` and read the current stack value as an integer.
+So the `printf` will pop the format specifier `%d` and read the current stack value as an DWORD
+integer.
 
-Then it will resize the stack (reduce it) with `add esp,0x10`, increment `[ebp-0xc]` by 1 with
-`add DWORD PTR [ebp-0xc]` and against, perform the comparison.
+Then it will resize the stack (remove the 16 bytes) with `add esp,0x10` (0x10 is 16), increment
+`[ebp-0xc]` by 1 with `add DWORD PTR [ebp-0xc]` and, again, perform the earlier comparison.
 
-This is a simple loop structure in ASM.
+So, this is a simple loop structure in ASM.
 
 The loop will print the count variable until it reaches `0x13` (19).
 
