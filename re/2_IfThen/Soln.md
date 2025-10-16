@@ -8,7 +8,7 @@ if_then: ELF 32-bit LSB executable, Intel i386, version 1 (SYSV), dynamically li
 The program is x86 (32-bit).
 
 ```sh
-objdump -D hello_world -M intel | less
+objdump -D if_then -M intel | less
 ```
 
 `main` is:
@@ -55,7 +55,7 @@ Then it immediately compares said address with `0xa`.
 The following `jne 8048429 <main+0x2e>` therefore won't be taken and instead a call to `puts`
 is made to print contents `0x80484c0`.
 
-`x80484c0` in `.rodata` is:
+Per `objdump -s -j ".rodata" if_then`, `0x80484c0` in `.rodata` is:
 
 ```sh
 Contents of section .rodata:
@@ -67,4 +67,4 @@ Contents of section .rodata:
 x = ten
 ```
 
-This is an example of `if-then`.
+This is an example of branching `if` statement.
