@@ -2,15 +2,14 @@
 
 There's a buffer overflow in this simple program.
 
-`read` reads in 24 bytes from the user into local variable `local_38`,
-but `local_38`:
+`read` reads in 24 bytes from the user into local variable `local_38`:
 
 ```c
 read(0,&local_38,24)
 ```
 
 The program calls `system("/bin/bash")` if `iStack_24` is `xcaf3baee`. But, `iStack_24`
-is initialised as `xdeadbeef`, and there's no normal execution path to change it.
+is initialised as `0xdeadbeef`, and there's no normal execution path to change it.
 
 Ghidra shows us the distance between `local_38` (`input`) and `iStack_24` (`target`):
 
